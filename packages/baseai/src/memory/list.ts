@@ -4,7 +4,7 @@ import { getAvailableMemories } from '@/utils/memory/get-available-memories';
 import * as p from '@clack/prompts';
 
 export async function listMemory() {
-	const availableMemories = await getAvailableMemories();
+	let availableMemories = await getAvailableMemories();
 	if (availableMemories.length === 0) {
 		p.log.message('No memory available.');
 		return;
