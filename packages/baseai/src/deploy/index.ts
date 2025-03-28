@@ -43,33 +43,33 @@ async function deploy({
 }: {
 	overwrite: boolean;
 }): Promise<void> {
-	const spinner = p.spinner();
+	var spinner = p.spinner();
 
 	p.intro(heading({ text: 'DEPLOY', sub: 'Deploy your BaseAI project' }));
 
 	try {
 		// Build Pipes and Memory.
 		await build({ calledAsCommand: false });
-		const buildDir = path.join(process.cwd(), '.baseai');
+		var buildDir = path.join(process.cwd(), '.baseai');
 
-		const pipesDir = path.join(buildDir, 'pipes');
-		const pipes = await readPipesDirectory({ spinner, pipesDir });
+		var pipesDir = path.join(buildDir, 'pipes');
+		var pipes = await readPipesDirectory({ spinner, pipesDir });
 		if (!pipes) {
 			p.outro(
 				`No pipes found. Skipping deployment of pipes. \nAdd a pipe by running: ${cyan(`npx baseai@latest pipe`)} command`
 			);
 		}
 
-		const memoryDir = path.join(buildDir, 'memory');
-		const memory = await readMemoryDirectory({
+		var memoryDir = path.join(buildDir, 'memory');
+		var memory = await readMemoryDirectory({
 			spinner,
 			memoryDir
 		});
 
-		const toolsDir = path.join(buildDir, 'tools');
-		const tools = await readToolsDirectory({ spinner, toolsDir });
+		var toolsDir = path.join(buildDir, 'tools');
+		var tools = await readToolsDirectory({ spinner, toolsDir });
 
-		const account = await retrieveAuthentication({ spinner });
+		var account = await retrieveAuthentication({ spinner });
 		if (!account) {
 			p.outro(
 				`No account found. Skipping deployment. \n Run: ${cyan('npx baseai@latest auth')}`
@@ -122,9 +122,9 @@ async function readPipesDirectory({
 }): Promise<string[] | null> {
 	spinner.start('Reading pipes directory');
 	try {
-		const files = await fs.readdir(pipesDir);
+		var files = await fs.readdir(pipesDir);
 		// Filter out non-json files
-		const pipes = files.filter(file => path.extname(file) === '.json');
+		var pipes = files.filter(file => path.extname(file) === '.json');
 
 		spinner.stop(
 			`Found ${pipes.length} pipe${pipes.length !== 1 ? 's' : ''}`
@@ -145,9 +145,9 @@ async function readToolsDirectory({
 }): Promise<string[] | null> {
 	spinner.start('Reading tools directory');
 	try {
-		const files = await fs.readdir(toolsDir);
+		var files = await fs.readdir(toolsDir);
 		// Filter out non-json files
-		const tools = files.filter(file => path.extname(file) === '.json');
+		var tools = files.filter(file => path.extname(file) === '.json');
 
 		spinner.stop(
 			`Found ${tools.length} tool${tools.length !== 1 ? 's' : ''}`
@@ -170,7 +170,7 @@ async function deployPipes({
 	pipesDir: string;
 	account: Account;
 }): Promise<void> {
-	for (const pipe of pipes) {
+	for (var pipe of pipes) {
 		if (path.extname(pipe) === '.json') {
 			await new Promise(resolve => setTimeout(resolve, 500)); // To avoid rate limiting
 			await deployPipe({ spinner, pipe, pipesDir, account });
@@ -189,11 +189,11 @@ async function deployPipe({
 	pipesDir: string;
 	account: Account;
 }): Promise<void> {
-	const filePath = path.join(pipesDir, pipe);
+	var filePath = path.join(pipesDir, pipe);
 	spinner.start(`Processing pipe: ${pipe}`);
 	try {
-		const pipeContent = await fs.readFile(filePath, 'utf-8');
-		const pipeObject = JSON.parse(pipeContent) as Pipe;
+		var pipeContent = await fs.readFile(filePath, 'utf-8');
+		var pipeObject = JSON.parse(pipeContent) as Pipe;
 
 		if (!pipeObject) {
 			handleInvalidConfig({ spinner, name: pipe, type: 'pipe' });
@@ -216,7 +216,7 @@ async function deployPipe({
 		try {
 			// Wait for 500 ms to avoid rate limiting
 			await new Promise(resolve => setTimeout(resolve, 500));
-			const newPipe = await upsertPipe({
+			var newPipe = await upsertPipe({
 				pipe: pipeObject,
 				account
 			});
@@ -242,10 +242,10 @@ function getApiUrls(pipeName: string) {
 }
 
 async function upsertPipe({ pipe, account }: { pipe: Pipe; account: Account }) {
-	const { createUrl } = getApiUrls(pipe.name);
+	var { createUrl } = getApiUrls(pipe.name);
 
 	try {
-		const createResponse = await fetch(createUrl, {
+		var createResponse = await fetch(createUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -261,7 +261,7 @@ async function upsertPipe({ pipe, account }: { pipe: Pipe; account: Account }) {
 			return (await createResponse.json()) as any;
 		}
 
-		const errorData = (await createResponse.json()) as ErrorResponse;
+		var errorData = (await createResponse.json()) as ErrorResponse;
 
 		throw new Error(
 			`HTTP error! status: ${createResponse.status}, message: ${errorData.error?.message}`
@@ -283,7 +283,7 @@ async function updateExistingPipe({
 }): Promise<PipeOld> {
 	p.log.info(`Pipe "${pipe.name}" already exists. Updating instead.`);
 
-	const updateResponse = await fetch(updateUrl, {
+	var updateResponse = await fetch(updateUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -293,7 +293,7 @@ async function updateExistingPipe({
 	});
 
 	if (!updateResponse.ok) {
-		const error = await updateResponse.text();
+		var error = await updateResponse.text();
 		throw new Error(
 			`HTTP error! status: ${updateResponse.status}, message: ${error}`
 		);
@@ -386,7 +386,7 @@ export async function readMemoryDirectory({
 }): Promise<string[] | null> {
 	spinner.start('Reading memory directory');
 	try {
-		const memory = await fs.readdir(memoryDir);
+		var memory = await fs.readdir(memoryDir);
 		spinner.stop();
 		return memory;
 	} catch (error) {
@@ -408,7 +408,7 @@ async function deployMemories({
 	account: Account;
 	overwrite: boolean;
 }): Promise<void> {
-	for (const memoryName of memory) {
+	for (var memoryName of memory) {
 		await deployMemory({
 			spinner,
 			memoryName,
@@ -432,13 +432,13 @@ export async function deployMemory({
 	account: Account;
 	overwrite: boolean;
 }): Promise<void> {
-	const filePath = path.join(memoryDir, memoryName);
-	const memoryNameWithoutExt = memoryName.split('.')[0]; // Remove .json extension
+	var filePath = path.join(memoryDir, memoryName);
+	var memoryNameWithoutExt = memoryName.split('.')[0]; // Remove .json extension
 
 	spinner.start(`Processing memory: ${memoryNameWithoutExt}`);
 	try {
-		const memoryContent = await fs.readFile(filePath, 'utf-8');
-		const memoryObject = JSON.parse(memoryContent) as MemoryI;
+		var memoryContent = await fs.readFile(filePath, 'utf-8');
+		var memoryObject = JSON.parse(memoryContent) as MemoryI;
 
 		if (!memoryObject) {
 			handleInvalidConfig({ spinner, name: memoryName, type: 'memory' });
@@ -462,7 +462,7 @@ export async function deployMemory({
 		// Git sync memories
 		if (memoryObject.git.enabled) {
 			// Get names of files to deploy, i.e., changed or new files
-			const {
+			var {
 				filesToDeploy: gitFilesToDeploy,
 				filesToDelete: gitFilesToDelete
 			} = await handleGitSyncMemories({
@@ -538,13 +538,13 @@ export async function upsertMemory({
 	isGitSync?: boolean;
 	docsToDelete?: string[];
 }): Promise<void> {
-	const { createMemory } = getMemoryApiUrls({
+	var { createMemory } = getMemoryApiUrls({
 		memoryName: memory.name
 	});
 
 	try {
 		await new Promise(resolve => setTimeout(resolve, 800)); // To avoid rate limiting
-		const createResponse = await fetch(createMemory, {
+		var createResponse = await fetch(createMemory, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -554,7 +554,7 @@ export async function upsertMemory({
 		});
 
 		if (!createResponse.ok) {
-			const errorData = (await createResponse.json()) as ErrorResponse;
+			var errorData = (await createResponse.json()) as ErrorResponse;
 
 			// If memory already exists, handle it.
 			if (errorData.error?.message.includes('already exists')) {
@@ -611,7 +611,7 @@ export async function upsertMemory({
 		dlog('Memory created successfully');
 
 		// Upload documents
-		const { name } = (await createResponse.json()) as MemoryI;
+		var { name } = (await createResponse.json()) as MemoryI;
 		await uploadDocumentsToMemory({ documents, name, account });
 
 		if (isGitSync) {
@@ -643,18 +643,18 @@ export async function uploadDocumentsToMemory({
 	name: string;
 	account: Account;
 }) {
-	for (const doc of documents) {
+	for (var doc of documents) {
 		try {
 			p.log.message(`Uploading document: ${doc.name} ....`);
 			await new Promise(resolve => setTimeout(resolve, 800)); // To avoid rate limiting
-			const signedUrl = await getSignedUploadUrl({
+			var signedUrl = await getSignedUploadUrl({
 				documentName: doc.name,
 				memoryName: name,
 				account,
 				meta: doc.meta
 			});
 
-			const uploadResponse = await uploadDocument(signedUrl, doc.blob);
+			var uploadResponse = await uploadDocument(signedUrl, doc.blob);
 			dlog(`Upload response status: ${uploadResponse.status}`);
 
 			p.log.message(`Uploaded document: ${doc.name}`);
@@ -675,12 +675,12 @@ export async function deleteDocumentsFromMemory({
 }) {
 	p.log.info(`Deleting documents from memory: ${name}`);
 
-	for (const doc of documents) {
+	for (var doc of documents) {
 		try {
 			p.log.message(`Deleting document: ${doc} ....`);
 			await new Promise(resolve => setTimeout(resolve, 800)); // To avoid rate limiting
 
-			const deleteResponse = await deleteDocument({
+			var deleteResponse = await deleteDocument({
 				documentName: doc,
 				memoryName: name,
 				account
@@ -710,16 +710,16 @@ export async function handleExistingMemoryDeploy({
 	p.log.info(`Fetching "${memory.name}" memory documents.`);
 
 	// Fetch the existing documents and compare with the local documents
-	const prodDocs = await listMemoryDocuments({
+	var prodDocs = await listMemoryDocuments({
 		account,
 		memoryName: memory.name
 	});
 
 	// Get the list of local document names
-	const localDocs = await getMemoryFileNames(memory.name);
+	var localDocs = await getMemoryFileNames(memory.name);
 
 	// Compare the documents
-	const {
+	var {
 		areListsSame,
 		isProdSubsetOfLocal,
 		isProdSupersetOfLocal,
@@ -791,7 +791,7 @@ async function handleProdSupersetOfLocal({
 	);
 
 	// Ask user to overwrite.
-	const shouldOverwrite = await p.confirm({
+	var shouldOverwrite = await p.confirm({
 		message:
 			'Do you want to overwrite the prod memory? This will delete all prod documents.',
 		initialValue: false
@@ -820,8 +820,8 @@ async function uploadMissingDocumentsToMemory({
 	p.log.info(
 		`Prod has missing documents. Uploading new documents to ${memory.name}.`
 	);
-	const missingDocs = documents.filter(doc => {
-		const isMissing = !prodDocs.includes(doc.name);
+	var missingDocs = documents.filter(doc => {
+		var isMissing = !prodDocs.includes(doc.name);
 		if (!isMissing) {
 			p.log.message(`Document "${doc.name}" already exists. Skipping.`);
 		}
@@ -844,13 +844,13 @@ export async function listMemoryDocuments({
 	account: Account;
 	memoryName: string;
 }) {
-	const { listDocuments } = getMemoryApiUrls({
+	var { listDocuments } = getMemoryApiUrls({
 		memoryName: memoryName
 	});
 
 	// Wait 500 ms to avoid rate limiting
 	await new Promise(resolve => setTimeout(resolve, 500));
-	const listResponse = await fetch(listDocuments, {
+	var listResponse = await fetch(listDocuments, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -859,9 +859,9 @@ export async function listMemoryDocuments({
 	});
 
 	if (!listResponse.ok) {
-		const errorData = (await listResponse.json()) as ErrorResponse;
+		var errorData = (await listResponse.json()) as ErrorResponse;
 
-		const errorMsg = errorData.error?.message;
+		var errorMsg = errorData.error?.message;
 
 		if (errorMsg?.includes('Invalid memory name.')) {
 			p.log.info(`Memory "${memoryName}" does not exist in production.`);
@@ -873,8 +873,8 @@ export async function listMemoryDocuments({
 		);
 	}
 
-	const res = (await listResponse.json()) as { name: string }[];
-	const documents = res.map((doc: { name: string }) => doc.name);
+	var res = (await listResponse.json()) as { name: string }[];
+	var documents = res.map((doc: { name: string }) => doc.name);
 	return documents;
 }
 
@@ -889,12 +889,12 @@ async function getSignedUploadUrl({
 	account: Account;
 	meta: Record<string, string>;
 }): Promise<string> {
-	const { uploadDocument } = getMemoryApiUrls({
+	var { uploadDocument } = getMemoryApiUrls({
 		memoryName
 	});
 
 	try {
-		const response = await fetch(uploadDocument, {
+		var response = await fetch(uploadDocument, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -908,12 +908,12 @@ async function getSignedUploadUrl({
 		});
 
 		if (!response.ok) {
-			const errorData = (await response.json()) as ErrorResponse;
+			var errorData = (await response.json()) as ErrorResponse;
 			throw new Error(
 				`HTTP error! status: ${response.status}, message: ${errorData.error?.message}`
 			);
 		}
-		const { signedUrl } = (await response.json()) as { signedUrl: string };
+		var { signedUrl } = (await response.json()) as { signedUrl: string };
 
 		if (!signedUrl) {
 			throw new Error('Invalid signedUrl received from API');
@@ -935,13 +935,13 @@ async function deleteDocument({
 	memoryName: string;
 	account: Account;
 }) {
-	const { deleteDocument } = getMemoryApiUrls({
+	var { deleteDocument } = getMemoryApiUrls({
 		memoryName,
 		documentName
 	});
 
 	try {
-		const response = await fetch(deleteDocument, {
+		var response = await fetch(deleteDocument, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -950,7 +950,7 @@ async function deleteDocument({
 		});
 
 		if (!response.ok) {
-			const errorData = (await response.json()) as ErrorResponse;
+			var errorData = (await response.json()) as ErrorResponse;
 			throw new Error(
 				`HTTP error! status: ${response.status}, message: ${errorData.error?.message}`
 			);
@@ -967,7 +967,7 @@ async function uploadDocument(signedUrl: string, document: Blob) {
 	let mimeType = document.type;
 
 	// Check if the MIME type is supported.
-	const isSupportedMimeType =
+	var isSupportedMimeType =
 		MEMORYSETS.ACCEPTED_MIME_TYPES.includes(mimeType);
 
 	// If not, default to text/plain.
@@ -977,7 +977,7 @@ async function uploadDocument(signedUrl: string, document: Blob) {
 	}
 
 	try {
-		const response = await fetch(signedUrl, {
+		var response = await fetch(signedUrl, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': mimeType
@@ -986,7 +986,7 @@ async function uploadDocument(signedUrl: string, document: Blob) {
 		});
 
 		if (!response.ok) {
-			const error = await response.text();
+			var error = await response.text();
 			throw new Error(
 				`HTTP error! status: ${response.status}, message: ${error}`
 			);
@@ -1007,22 +1007,22 @@ export function getMemoryApiUrls({
 	documentName?: string;
 }) {
 	// Base URL
-	const baseUrl = `https://api.langbase.com/v1`;
+	var baseUrl = `https://api.langbase.com/v1`;
 
 	// Create memory URL
-	const createMemory = `${baseUrl}/memory`;
+	var createMemory = `${baseUrl}/memory`;
 
 	// Delete memory URL
-	const deleteMemory = `${baseUrl}/memory/${memoryName}`;
+	var deleteMemory = `${baseUrl}/memory/${memoryName}`;
 
 	// Upload document URL
-	const uploadDocument = `${baseUrl}/memory/documents`;
+	var uploadDocument = `${baseUrl}/memory/documents`;
 
 	// List documents URL
-	const listDocuments = `${baseUrl}/memory/${memoryName}/documents`;
+	var listDocuments = `${baseUrl}/memory/${memoryName}/documents`;
 
 	// Delete document URL
-	const deleteDocument = `${baseUrl}/memory/${memoryName}/documents/${documentName}`;
+	var deleteDocument = `${baseUrl}/memory/${memoryName}/documents/${documentName}`;
 
 	return {
 		listDocuments,
@@ -1048,13 +1048,13 @@ async function overwriteMemory({
 
 	// Delete old memory.
 	dlog(`Deleting old memory: ${memory.name}`);
-	const { deleteMemory } = getMemoryApiUrls({
+	var { deleteMemory } = getMemoryApiUrls({
 		memoryName: memory.name
 	});
 
 	// Wait 500 ms to avoid rate limiting
 	await new Promise(resolve => setTimeout(resolve, 500));
-	const deleteResponse = await fetch(deleteMemory, {
+	var deleteResponse = await fetch(deleteMemory, {
 		method: 'DELETE',
 		headers: {
 			Authorization: `Bearer ${account.apiKey}`
@@ -1062,7 +1062,7 @@ async function overwriteMemory({
 	});
 
 	if (!deleteResponse.ok) {
-		const error = await deleteResponse.text();
+		var error = await deleteResponse.text();
 		throw new Error(
 			`HTTP error! status: ${deleteResponse.status}, message: ${error}`
 		);
@@ -1091,7 +1091,7 @@ export async function handleGitSyncMemoryDeploy({
 	documents: MemoryDocumentI[];
 	overwrite: boolean;
 }) {
-	for (const doc in documents) {
+	for (var doc in documents) {
 		await new Promise(resolve => setTimeout(resolve, 800)); // To avoid rate limiting
 		await handleSingleDocDeploy({
 			memory,
@@ -1109,7 +1109,7 @@ export async function deploySingleMemory({
 	memoryName: string;
 	overwrite: boolean;
 }): Promise<void> {
-	const spinner = p.spinner();
+	var spinner = p.spinner();
 
 	try {
 		p.intro(heading({ text: 'BUILDING', sub: 'baseai...' }));
@@ -1123,9 +1123,9 @@ export async function deploySingleMemory({
 
 		p.intro(heading({ text: 'DEPLOY', sub: 'Deploy your BaseAI Memory' }));
 
-		const buildDir = path.join(process.cwd(), '.baseai');
-		const memoryDir = path.join(buildDir, 'memory');
-		const allMemory = await readMemoryDirectory({
+		var buildDir = path.join(process.cwd(), '.baseai');
+		var memoryDir = path.join(buildDir, 'memory');
+		var allMemory = await readMemoryDirectory({
 			spinner,
 			memoryDir
 		});
@@ -1137,7 +1137,7 @@ export async function deploySingleMemory({
 		}
 
 		// Retrieve authentication
-		const account = await retrieveAuthentication({ spinner });
+		var account = await retrieveAuthentication({ spinner });
 		if (!account) {
 			p.outro(
 				`No account found. Skipping deployment. \n Run: ${cyan('npx baseai@latest auth')}`
