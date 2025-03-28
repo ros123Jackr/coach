@@ -1,6 +1,6 @@
 import {isProd} from '../utils/is-prod';
 
-export const logger = (category: any, value?: unknown, logHeader?: string) => {
+export let logger = (category: any, value?: unknown, logHeader?: string) => {
 	if (isProd()) return;
 
 	console.log('');
