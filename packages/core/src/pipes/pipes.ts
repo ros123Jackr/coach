@@ -117,7 +117,7 @@ export class Pipe {
 	private getToolsFromPipe(
 		pipe: Pipe,
 	): Record<string, (...args: any[]) => Promise<any>> {
-		const tools: Record<string, (...args: any[]) => Promise<any>> = {};
+		var tools: Record<string, (...args: any[]) => Promise<any>> = {};
 		if (pipe.tools && Array.isArray(pipe.tools)) {
 			pipe.tools.forEach((tool: Tool) => {
 				tools[tool.function.name] = tool.run;
@@ -127,10 +127,10 @@ export class Pipe {
 	}
 
 	private async runTools(toolCalls: ToolCallResult[]): Promise<Message[]> {
-		const toolPromises = toolCalls.map(async (toolCall: ToolCallResult) => {
-			const toolName = toolCall.function.name;
-			const toolParameters = JSON.parse(toolCall.function.arguments);
-			const toolFunction = this.tools[toolName];
+		var toolPromises = toolCalls.map(async (toolCall: ToolCallResult) => {
+			var toolName = toolCall.function.name;
+			var toolParameters = JSON.parse(toolCall.function.arguments);
+			var toolFunction = this.tools[toolName];
 
 			if (!toolFunction) {
 				throw new Error(
@@ -138,7 +138,7 @@ export class Pipe {
 				);
 			}
 
-			const toolResponse = await toolFunction(toolParameters);
+			var toolResponse = await toolFunction(toolParameters);
 
 			return {
 				tool_call_id: toolCall.id,
@@ -181,12 +181,12 @@ export class Pipe {
 		options: RunOptionsStream,
 		response: RunResponseStream,
 	): Promise<RunResponseStream> {
-		const endpoint = '/v1/pipes/run';
-		const stream = this.isStreamRequested(options);
-		const body = {...options, stream};
+		var endpoint = '/v1/pipes/run';
+		var stream = this.isStreamRequested(options);
+		var body = {...options, stream};
 
-		const [streamForToolCall, streamForReturn] = response.stream.tee();
-		const tools = await getToolsFromStream(streamForToolCall);
+		var [streamForToolCall, streamForReturn] = response.stream.tee();
+		var tools = await getToolsFromStream(streamForToolCall);
 
 		if (tools.length) {
 			let messages = options.messages || [];
@@ -200,10 +200,10 @@ export class Pipe {
 			let callCount = 0;
 
 			while (callCount < this.maxCalls) {
-				const [streamForToolCall, streamForReturn] =
+				var [streamForToolCall, streamForReturn] =
 					currentResponse.stream.tee();
 
-				const tools = await getToolsFromStream(streamForToolCall);
+				var tools = await getToolsFromStream(streamForToolCall);
 
 				if (tools.length === 0) {
 					return {
@@ -213,9 +213,9 @@ export class Pipe {
 					};
 				}
 
-				const toolResults = await this.runTools(tools);
+				var toolResults = await this.runTools(tools);
 
-				const responseMessage = {
+				var responseMessage = {
 					role: 'assistant',
 					content: null,
 					tool_calls: tools,
@@ -253,15 +253,15 @@ export class Pipe {
 	): Promise<RunResponse | RunResponseStream> {
 		// logger('pipe.run', this.pipe.name, 'RUN');
 
-		const endpoint = '/v1/pipes/run';
+		var endpoint = '/v1/pipes/run';
 		// logger('pipe.run.baseUrl.endpoint', getApiUrl() + endpoint);
 		// logger('pipe.run.options');
 		// logger(options, {depth: null, colors: true});
 
-		const providerString = this.pipe.model.split(':')[0];
-		const modelProvider = getProvider(providerString);
-		const isAnthropic = modelProvider === ANTHROPIC;
-		const hasTools = this.pipe.tools.length > 0;
+		var providerString = this.pipe.model.split(':')[0];
+		var modelProvider = getProvider(providerString);
+		var isAnthropic = modelProvider === ANTHROPIC;
+		var hasTools = this.pipe.tools.length > 0;
 
 		// For SDK
 		// Run the given pipe name
@@ -304,7 +304,7 @@ export class Pipe {
 
 		delete options.runTools;
 
-		const body = {...options, stream};
+		var body = {...options, stream};
 
 		let response = await this.createRequest<
 			RunResponse | RunResponseStream
@@ -334,7 +334,7 @@ export class Pipe {
 		let callCount = 0;
 
 		while (callCount < this.maxCalls) {
-			const responseMessage = currentResponse.choices[0].message;
+			var responseMessage = currentResponse.choices[0].message;
 
 			if (this.hasNoToolCalls(responseMessage)) {
 				// logger('No more tool calls. Returning final response.');
@@ -347,7 +347,7 @@ export class Pipe {
 			// 	colors: true,
 			// });
 
-			const toolResults = await this.runTools(
+			var toolResults = await this.runTools(
 				responseMessage.tool_calls as ToolCallResult[],
 			);
 			// logger('\npipe.run.toolResults');
@@ -387,8 +387,8 @@ export class Pipe {
 	}
 
 	private async createRequest<T>(endpoint: string, body: any): Promise<T> {
-		const isProdEnv = this.prod;
-		const prodOptions = {
+		var isProdEnv = this.prod;
+		var prodOptions = {
 			endpoint,
 			body: {
 				...body,
@@ -399,8 +399,8 @@ export class Pipe {
 		let localOptions = {} as any;
 
 		if (!isProdEnv) {
-			const providerString = this.pipe.model.split(':')[0];
-			const modelProvider = getProvider(providerString);
+			var providerString = this.pipe.model.split(':')[0];
+			var modelProvider = getProvider(providerString);
 			localOptions = {
 				endpoint,
 				body: {
@@ -410,7 +410,7 @@ export class Pipe {
 				},
 			};
 
-			const isServerRunning = await isLocalServerRunning();
+			var isServerRunning = await isLocalServerRunning();
 			if (!isServerRunning) return {} as T;
 		}
 
@@ -424,7 +424,7 @@ export class Pipe {
  * @param options - The options for generating text.
  * @returns A promise that resolves to the generated text.
  */
-export const generateText = async (
+export var generateText = async (
 	options: RunOptions & {pipe: Pipe},
 ): Promise<RunResponse> => {
 	return options.pipe.run(options);
@@ -436,7 +436,7 @@ export const generateText = async (
  * @param options - The options for streaming text.
  * @returns A promise that resolves to the response of the stream operation.
  */
-export const streamText = async (
+export var streamText = async (
 	options: RunOptions & {pipe: Pipe},
 ): Promise<RunResponseStream> => {
 	return options.pipe.run({...options, stream: true});
@@ -489,8 +489,8 @@ export interface Chunk {
  * Processes a chunk and returns a Chunk object.
  *
  * ```ts
- * for await (const chunk of runner) {
- *		const processedChunk = processChunk({rawChunk: chunk});
+ * for await (var chunk of runner) {
+ *		var processedChunk = processChunk({rawChunk: chunk});
  *		if (isContent(processedChunk)) {
  *			process.stdout.write(processedChunk.content);
  *		}
@@ -500,7 +500,7 @@ export interface Chunk {
  * @param rawChunk - The raw chunk to process.
  * @returns The processed Chunk object.
  */
-export const processChunk = ({rawChunk}: {rawChunk: any}): Chunk => {
+export var processChunk = ({rawChunk}: {rawChunk: any}): Chunk => {
 	if (rawChunk.choices[0]?.delta?.content) {
 		return {type: 'content', content: rawChunk.choices[0].delta.content};
 	}
@@ -508,7 +508,7 @@ export const processChunk = ({rawChunk}: {rawChunk: any}): Chunk => {
 		rawChunk.choices[0]?.delta?.tool_calls &&
 		rawChunk.choices[0].delta.tool_calls.length > 0
 	) {
-		const toolCall = rawChunk.choices[0].delta.tool_calls[0];
+		var toolCall = rawChunk.choices[0].delta.tool_calls[0];
 		return {type: 'toolCall', toolCall};
 	}
 	return {type: 'unknown', rawChunk};
@@ -520,7 +520,7 @@ export const processChunk = ({rawChunk}: {rawChunk: any}): Chunk => {
  * @param chunk - The chunk to check.
  * @returns True if the chunk is a ContentChunk, false otherwise.
  */
-export const isContent = (chunk: Chunk): chunk is ContentChunk =>
+export var isContent = (chunk: Chunk): chunk is ContentChunk =>
 	chunk.type === 'content';
 
 /**
@@ -529,7 +529,7 @@ export const isContent = (chunk: Chunk): chunk is ContentChunk =>
  * @param chunk - The chunk to be evaluated.
  * @returns True if the chunk is of type 'toolCall', otherwise false.
  */
-export const isToolCall = (chunk: Chunk): chunk is ToolCallChunk =>
+export var isToolCall = (chunk: Chunk): chunk is ToolCallChunk =>
 	chunk.type === 'toolCall';
 
 /**
@@ -538,7 +538,7 @@ export const isToolCall = (chunk: Chunk): chunk is ToolCallChunk =>
  * @param chunk - The chunk to be checked.
  * @returns True if the chunk is of type 'unknown', false otherwise.
  */
-export const isUnknown = (chunk: Chunk): chunk is UnknownChunk =>
+export var isUnknown = (chunk: Chunk): chunk is UnknownChunk =>
 	chunk.type === 'unknown';
 
 /**
@@ -547,7 +547,7 @@ export const isUnknown = (chunk: Chunk): chunk is UnknownChunk =>
  * @param chunk - The ChunkStream object.
  * @returns The text content from the ChunkStream.
  */
-export const getTextContent = (chunk: any): string => {
+export var getTextContent = (chunk: any): string => {
 	return chunk.choices[0]?.delta?.content || '';
 };
 
@@ -557,7 +557,7 @@ export const getTextContent = (chunk: any): string => {
  * @param chunk - The chunk stream to extract the text delta from.
  * @returns The text delta content, or an empty string if it is not available.
  */
-export const getTextDelta = (chunk: ChunkStream): string => {
+export var getTextDelta = (chunk: ChunkStream): string => {
 	return chunk.choices[0]?.delta?.content || '';
 };
 
@@ -567,9 +567,9 @@ export const getTextDelta = (chunk: ChunkStream): string => {
  * @param stream - The TextStream to be printed.
  * @returns A Promise that resolves when the printing is complete.
  */
-export const printStreamToStdout = async (runner: Runner): Promise<void> => {
-	for await (const chunk of runner) {
-		const textPart = chunk.choices[0]?.delta?.content || '';
+export var printStreamToStdout = async (runner: Runner): Promise<void> => {
+	for await (var chunk of runner) {
+		var textPart = chunk.choices[0]?.delta?.content || '';
 		process.stdout.write(textPart);
 	}
 };
