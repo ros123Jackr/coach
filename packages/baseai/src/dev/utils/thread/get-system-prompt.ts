@@ -25,12 +25,12 @@ export function getSystemPromptMessage({
 }
 
 function addSystemPrompt(pipe: Pipe): string {
-	const defualtSystemPrompt = `You are a helpful AI Chat assistant`;
-	const systemPrompt =
+	var defualtSystemPrompt = `You are a helpful AI Chat assistant`;
+	var systemPrompt =
 		pipe.messages.find(m => m.role === 'system' && !m.name)?.content || '';
-	const hasSystemPrompt = systemPrompt !== '';
+	var hasSystemPrompt = systemPrompt !== '';
 
-	const systemPromptWithoutSafety = hasSystemPrompt
+	var systemPromptWithoutSafety = hasSystemPrompt
 		? systemPrompt
 		: defualtSystemPrompt;
 
@@ -52,7 +52,7 @@ function addSafetyPrompt({
 	systemPrompt: string;
 }): string {
 	let safetyPrompt = getSafetyPrompt(pipe);
-	const hasSafetyPrompt = safetyPrompt !== '';
+	var hasSafetyPrompt = safetyPrompt !== '';
 
 	safetyPrompt = hasSafetyPrompt
 		? `"""SAFETY GUIDELINE: ${safetyPrompt}"""`
@@ -73,21 +73,21 @@ function addRagPromptWithAugmentedContext({
 	// No RAG: then return the system prompt.
 	if (!similarChunks || similarChunks.length === 0) return systemPrompt;
 
-	const memoryContext = similarChunks
+	var memoryContext = similarChunks
 		.map(chunk => `${chunk.text} \n\n Source: ${chunk.attributes.docName}`)
 		.join('\n\n');
 
 	// Extract Rag prompt from the messages.
-	const ragMsg =
+	var ragMsg =
 		pipe.messages.find(m => m.role === 'system' && m.name === 'rag')
 			?.content || '';
 
 	// If there is no rag prompt, use the default rag prompt.
-	const hasRagPrompt = ragMsg !== '';
-	const ragPrompt = hasRagPrompt ? ragMsg : defaultRagPrompt;
+	var hasRagPrompt = ragMsg !== '';
+	var ragPrompt = hasRagPrompt ? ragMsg : defaultRagPrompt;
 
-	const contextContent = `"""CONTEXT:\n ${memoryContext}"""`;
-	const ragPromptWithAugmentedContext = `"""${ragPrompt}""" \n\n ${contextContent}`;
+	var contextContent = `"""CONTEXT:\n ${memoryContext}"""`;
+	var ragPromptWithAugmentedContext = `"""${ragPrompt}""" \n\n ${contextContent}`;
 
 	return `${systemPrompt} \n\n ${ragPromptWithAugmentedContext}`.trim();
 }
