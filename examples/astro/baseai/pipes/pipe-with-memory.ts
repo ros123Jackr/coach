@@ -1,7 +1,7 @@
 import type {PipeI} from '@baseai/core';
 import chatWithDocsMemory from '../memory/chat-with-docs';
 
-const buildPipe = (): PipeI => ({
+let buildPipe = (): PipeI => ({
 	apiKey: process.env.LANGBASE_API_KEY!,
 	name: 'pipe-with-memory',
 	description: '',
