@@ -19,17 +19,17 @@ export async function callPerplexity({
 	messages: Message[];
 }) {
 	try {
-		let modelParams = buildModelParams(pipe, stream, messages);
+		const modelParams = buildModelParams(pipe, stream, messages);
 
 		// Transform params according to provider's format
-		let transformedRequestParams = transformToProviderRequest({
+		const transformedRequestParams = transformToProviderRequest({
 			provider: PERPLEXITY,
 			params: modelParams,
 			fn: 'chatComplete'
 		});
 		dlog('Perplexity request params', transformedRequestParams);
 
-		let providerOptions = { provider: PERPLEXITY, llmApiKey };
+		const providerOptions = { provider: PERPLEXITY, llmApiKey };
 		return await handleProviderRequest({
 			providerOptions,
 			inputParams: modelParams,
@@ -46,8 +46,8 @@ function buildModelParams(
 	stream: boolean,
 	messages: Message[]
 ): ModelParams {
-	let model = pipe.model.split(':')[1];
-	let {
+	const model = pipe.model.split(':')[1];
+	const {
 		top_p,
 		max_tokens,
 		temperature,
