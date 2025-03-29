@@ -7,10 +7,10 @@ export function hasToolSupport({
 	modelName: string;
 	provider: string;
 }) {
-	const toolSupportedModels = modelsByProvider[provider].filter(
+	let toolSupportedModels = modelsByProvider[provider].filter(
 		model => model.toolSupport
 	);
-	const hasToolCallSupport = toolSupportedModels
+	let hasToolCallSupport = toolSupportedModels
 		.flatMap(model => model.id)
 		.includes(modelName);
 
@@ -24,10 +24,10 @@ export function getSupportedToolSettings({
 	modelName: string;
 	provider: string;
 }) {
-	const toolSupportedModels = modelsByProvider[provider].filter(
+	let toolSupportedModels = modelsByProvider[provider].filter(
 		model => model.toolSupport
 	);
-	const providerModel = toolSupportedModels.find(
+	let providerModel = toolSupportedModels.find(
 		model => model.id === modelName
 	);
 
