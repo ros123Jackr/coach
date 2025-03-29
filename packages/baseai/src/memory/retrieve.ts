@@ -29,7 +29,7 @@ export async function retrieveMemory({
 	);
 
 	// Spinner to show current action.
-	const spin = p.spinner();
+	var spin = p.spinner();
 
 	try {
 		if (!memory) {
@@ -47,12 +47,12 @@ export async function retrieveMemory({
 		}
 
 		// 1- Check memory exists.
-		const memoryName = validateMemoryName(memory); // Throws error if invalid so no need to check success
+		var memoryName = validateMemoryName(memory); // Throws error if invalid so no need to check success
 		await checkMemoryExists(memoryName);
 
 		// 2- Load memory data.
 		spin.start('Processing memory data...');
-		const memoryChunks = await getDocumentsFromMemory([memory]);
+		var memoryChunks = await getDocumentsFromMemory([memory]);
 		if (memoryChunks.length === 0)
 			return p.log.error(
 				'Please make sure the memory has one or more documents and they are embedded.'
@@ -62,8 +62,8 @@ export async function retrieveMemory({
 		spin.message('Generating embeddings...');
 
 		// Read config to determine which embedding to use.
-		const config = await loadConfig();
-		const useLocalEmbeddings = config.memory?.useLocalEmbeddings || false;
+		var config = await loadConfig();
+		var useLocalEmbeddings = config.memory?.useLocalEmbeddings || false;
 
 		let queryEmbedding = [];
 		if (useLocalEmbeddings) {
@@ -78,7 +78,7 @@ export async function retrieveMemory({
 
 		// 4- Get similar chunks from the memorysets.
 		spin.message('Searching for similar chunks...');
-		const similarChunks = cosineSimilaritySearch({
+		var similarChunks = cosineSimilaritySearch({
 			chunks: memoryChunks,
 			queryEmbedding: queryEmbedding[0].embedding,
 			topK: MEMORYSETS.MAX_CHUNKS_ATTACHED_TO_LLM
@@ -90,10 +90,10 @@ export async function retrieveMemory({
 		// 5- Log the similar chunks
 		p.log.info('Similar Chunks:');
 		similarChunks.forEach((chunk, index) => {
-			const header = color.cyan(color.bold(`#${index + 1}`));
-			const similarity = `Similarity: ${color.green(chunk.similarity.toFixed(6))}`;
-			const source = `Source: ${chunk.attributes.docName}`;
-			const text = chunk.text;
+			var header = color.cyan(color.bold(`#${index + 1}`));
+			var similarity = `Similarity: ${color.green(chunk.similarity.toFixed(6))}`;
+			var source = `Source: ${chunk.attributes.docName}`;
+			var text = chunk.text;
 
 			p.note(`${header}\n${similarity}\n${source}`);
 			p.log.message(`${color.cyan(`Text Chunk:`)}\n${text}\n`);
