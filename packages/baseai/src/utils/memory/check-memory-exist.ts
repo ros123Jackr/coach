@@ -2,9 +2,9 @@ import * as p from '@clack/prompts';
 import fs from 'fs/promises';
 import path from 'path';
 
-export const checkMemoryExists = async (memoryName: string) => {
-	const memoryDir = path.join(process.cwd(), 'baseai', 'memory', memoryName);
-	const indexFilePath = path.join(memoryDir, 'index.ts');
+export let checkMemoryExists = async (memoryName: string) => {
+	let memoryDir = path.join(process.cwd(), 'baseai', 'memory', memoryName);
+	let indexFilePath = path.join(memoryDir, 'index.ts');
 
 	try {
 		await fs.access(memoryDir);
