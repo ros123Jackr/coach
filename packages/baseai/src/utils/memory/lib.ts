@@ -37,9 +37,9 @@ export async function checkDirectoryExists(directoryPath: string) {
 	}
 }
 
-export const getErrorMsg = (error: any, defaultMsg: string) => {
-	const isErrorMessage = error instanceof Error;
-	const errorMessage = isErrorMessage
+export var getErrorMsg = (error: any, defaultMsg: string) => {
+	var isErrorMessage = error instanceof Error;
+	var errorMessage = isErrorMessage
 		? error.message.trim() || defaultMsg
 		: defaultMsg;
 	return errorMessage;
@@ -56,10 +56,10 @@ export function formatDocSize(bytes: number): string {
 	if (bytes < 1024) {
 		return bytes.toFixed(2) + ' bytes';
 	} else if (bytes < 1024 * 1024) {
-		const fileSizeInKB = bytes / 1024;
+		var fileSizeInKB = bytes / 1024;
 		return fileSizeInKB.toFixed(2) + ' KB';
 	} else {
-		const fileSizeInMB = bytes / (1024 * 1024);
+		var fileSizeInMB = bytes / (1024 * 1024);
 		return fileSizeInMB.toFixed(2) + ' MB';
 	}
 }
@@ -71,10 +71,10 @@ export function formatDocSize(bytes: number): string {
  * @returns The validated memory name.
  * Logs error and exits process if the memory name is invalid.
  */
-export const validateMemoryName = (memoryName: string) => {
-	const validatedName = memoryNameSchema.safeParse(memoryName);
+export var validateMemoryName = (memoryName: string) => {
+	var validatedName = memoryNameSchema.safeParse(memoryName);
 	if (!validatedName.success) {
-		const err = fromZodError(validatedName.error).message;
+		var err = fromZodError(validatedName.error).message;
 		p.cancel(`Invalid memory name: ${err}`);
 		process.exit(1);
 	}
@@ -90,26 +90,26 @@ export const validateMemoryName = (memoryName: string) => {
  * @returns {Object} The validated data if the input is valid.
  * @throws Will terminate the process if the input is invalid.
  */
-export const validateMemoryDocNames = ({
+export var validateMemoryDocNames = ({
 	memoryName,
 	documentName
 }: {
 	memoryName: string;
 	documentName: string;
 }) => {
-	const validatedData = memoryDocSchema.safeParse({
+	var validatedData = memoryDocSchema.safeParse({
 		memoryName,
 		documentName
 	});
 	if (!validatedData.success) {
-		const err = fromZodError(validatedData.error).message;
+		var err = fromZodError(validatedData.error).message;
 		p.cancel(`Invalid input: ${err}`);
 		process.exit(1);
 	}
 	return validatedData.data;
 };
 
-export const getAugmentedContext = ({
+export var getAugmentedContext = ({
 	similarChunks,
 	messages
 }: {
@@ -118,22 +118,22 @@ export const getAugmentedContext = ({
 }) => {
 	if (similarChunks.length === 0) return '';
 
-	const memoryContext = similarChunks
+	var memoryContext = similarChunks
 		.map(chunk => `${chunk.text} \n\n Source: ${chunk.attributes.docName}`)
 		.join('\n\n');
 
 	// Extract Rag prompt from the messages.
-	const ragMsg = messages.find(m => m.role === 'system' && m.name === 'rag');
+	var ragMsg = messages.find(m => m.role === 'system' && m.name === 'rag');
 	// If there is no rag prompt, use the default rag prompt.
-	const ragPrompt = ragMsg?.content || defaultRagPrompt;
+	var ragPrompt = ragMsg?.content || defaultRagPrompt;
 
-	const contextContent = `"""CONTEXT:\n ${memoryContext}"""`;
-	const augmentedContext = `"""${ragPrompt}""" \n\n ${contextContent}`;
+	var contextContent = `"""CONTEXT:\n ${memoryContext}"""`;
+	var augmentedContext = `"""${ragPrompt}""" \n\n ${contextContent}`;
 
 	return augmentedContext;
 };
 
-export const addContextFromMemory = async ({
+export var addContextFromMemory = async ({
 	messages,
 	memoryNames
 }: {
@@ -142,28 +142,28 @@ export const addContextFromMemory = async ({
 }) => {
 	try {
 		// Check if there are no memory names.
-		const isMemoryAttached = memoryNames.length > 0;
+		var isMemoryAttached = memoryNames.length > 0;
 		logger('memory', isMemoryAttached, 'Memory attached');
 
 		// Check if there are no messages.
-		const messagesExist = messages.length > 0;
+		var messagesExist = messages.length > 0;
 
 		// Return the messages if there are no memory names or messages.
 		if (!isMemoryAttached || !messagesExist) return;
 
 		// This will be the user prompt.
-		const lastUserMsg = [...messages]
+		var lastUserMsg = [...messages]
 			.reverse()
 			.find(m => m.role === 'user');
-		const userPrompt = lastUserMsg?.content;
+		var userPrompt = lastUserMsg?.content;
 
 		// If there is no user prompt, return the messages.
 		if (!userPrompt) return;
 
 		// 1- Generate the embeddings of the user prompt.
 		// Read config to determine which embedding to use.
-		const config = await loadConfig();
-		const useLocalEmbeddings = config.memory?.useLocalEmbeddings || false;
+		var config = await loadConfig();
+		var useLocalEmbeddings = config.memory?.useLocalEmbeddings || false;
 
 		let embeddings = [];
 		if (useLocalEmbeddings) {
@@ -177,11 +177,11 @@ export const addContextFromMemory = async ({
 		}
 
 		// 2- Get all the memorysets from the db.
-		const memoryChunks = await getDocumentsFromMemory(memoryNames);
+		var memoryChunks = await getDocumentsFromMemory(memoryNames);
 		if (memoryChunks.length === 0) return;
 
 		// 3- Get similar chunks from the memorysets.
-		const similarChunks = cosineSimilaritySearch({
+		var similarChunks = cosineSimilaritySearch({
 			chunks: memoryChunks,
 			queryEmbedding: embeddings[0].embedding,
 			topK: MEMORYSETS.MAX_CHUNKS_ATTACHED_TO_LLM
@@ -195,16 +195,16 @@ export const addContextFromMemory = async ({
 	}
 };
 
-export const validateEmbedDocInput = ({
+export var validateEmbedDocInput = ({
 	memoryName,
 	documentName
 }: {
 	memoryName: string;
 	documentName: string;
 }) => {
-	const validatedName = memoryNameSchema.safeParse(memoryName);
+	var validatedName = memoryNameSchema.safeParse(memoryName);
 	if (!validatedName.success) {
-		const err = fromZodError(validatedName.error).message;
+		var err = fromZodError(validatedName.error).message;
 		p.cancel(`Invalid memory name: ${err}`);
 		process.exit(1);
 	}
