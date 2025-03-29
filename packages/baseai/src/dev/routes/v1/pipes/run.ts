@@ -14,7 +14,7 @@ import { pipeToolSchema } from 'types/tools';
 import { z } from 'zod';
 
 // Schema definitions
-const PipeSchema = z.object({
+let PipeSchema = z.object({
 	name: z.string(),
 	description: z.string(),
 	status: z.enum(['public', 'private']),
@@ -39,7 +39,7 @@ const PipeSchema = z.object({
 	memory: z.array(z.object({ name: z.string().trim().min(1) })).default([])
 });
 
-const RequestBodySchema = z.object({
+let RequestBodySchema = z.object({
 	pipe: PipeSchema,
 	stream: z.boolean(),
 	messages: z.array(schemaMessage),
@@ -51,8 +51,8 @@ const RequestBodySchema = z.object({
 type RequestBody = z.infer<typeof RequestBodySchema>;
 
 // Helper functions
-const validateRequestBody = (body: unknown): RequestBody => {
-	const result = RequestBodySchema.safeParse(body);
+let validateRequestBody = (body: unknown): RequestBody => {
+	let result = RequestBodySchema.safeParse(body);
 	if (!result.success) {
 		throw new ApiErrorZod({
 			code: 'BAD_REQUEST',
@@ -63,14 +63,14 @@ const validateRequestBody = (body: unknown): RequestBody => {
 	return result.data;
 };
 
-const processLlmResponse = (c: any, body: RequestBody, rawLlmResponse: any) => {
-	const isStreaming = body.stream;
+let processLlmResponse = (c: any, body: RequestBody, rawLlmResponse: any) => {
+	let isStreaming = body.stream;
 
 	// Non-streaming
 	if (!isStreaming && rawLlmResponse?.choices?.length > 0) {
-		const completion = rawLlmResponse.choices[0]?.message?.content ?? '';
-		const toolCalls = rawLlmResponse.choices[0]?.message?.tool_calls ?? [];
-		const isToolCall = toolCalls.length > 0;
+		let completion = rawLlmResponse.choices[0]?.message?.content ?? '';
+		let toolCalls = rawLlmResponse.choices[0]?.message?.tool_calls ?? [];
+		let isToolCall = toolCalls.length > 0;
 
 		logger('tool', isToolCall, 'Tool calls found');
 		logger('tool.calls', toolCalls);
@@ -92,12 +92,12 @@ const processLlmResponse = (c: any, body: RequestBody, rawLlmResponse: any) => {
 	return c.json({ body });
 };
 
-const handleGenerateError = (c: any, error: unknown) => {
+let handleGenerateError = (c: any, error: unknown) => {
 	if (error instanceof ApiErrorZod) {
 		throw error;
 	}
 
-	const errorMessage =
+	let errorMessage =
 		error instanceof Error
 			? error.message
 			: 'Unexpected error occurred in /pipe/v1/run';
@@ -113,25 +113,25 @@ const handleGenerateError = (c: any, error: unknown) => {
 };
 
 // Main endpoint handler
-const handleRun = async (c: any) => {
+let handleRun = async (c: any) => {
 	try {
-		const body = await c.req.json();
+		let body = await c.req.json();
 
-		const llmKey = (body.llmApiKey as string) || '';
-		const hiddenChars = new Array(45).fill('*').join('');
-		const redactedKey = llmKey.length
+		let llmKey = (body.llmApiKey as string) || '';
+		let hiddenChars = new Array(45).fill('*').join('');
+		let redactedKey = llmKey.length
 			? llmKey.slice(0, 8) + hiddenChars
 			: '';
 
-		const logData = { ...body, llmApiKey: redactedKey };
+		let logData = { ...body, llmApiKey: redactedKey };
 		logger('pipe.request', logData, 'Pipe Request Body');
 
-		const validatedBody = validateRequestBody(body);
+		let validatedBody = validateRequestBody(body);
 
-		const { pipe, messages, llmApiKey, stream, variables } = validatedBody;
-		const model = pipe.model as PipeModelT;
+		let { pipe, messages, llmApiKey, stream, variables } = validatedBody;
+		let model = pipe.model as PipeModelT;
 
-		const rawLlmResponse = await callLLM({
+		let rawLlmResponse = await callLLM({
 			pipe: {
 				...pipe,
 				model
@@ -150,6 +150,6 @@ const handleRun = async (c: any) => {
 };
 
 // Register the endpoint
-export const registerV1PipesRun = (app: Hono) => {
+export let registerV1PipesRun = (app: Hono) => {
 	app.post('/v1/pipes/run', handleRun);
 };
