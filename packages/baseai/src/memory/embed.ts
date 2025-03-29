@@ -22,7 +22,7 @@ export async function embedMemory({
 	useLocalEmbeddings?: boolean;
 }) {
 	// Spinner to show current action.
-	const s = p.spinner();
+	var s = p.spinner();
 
 	try {
 		p.intro(
@@ -40,7 +40,7 @@ export async function embedMemory({
 		}
 
 		// 1- Check memory exists.
-		const memoryName = validateMemoryName(memoryNameInput);
+		var memoryName = validateMemoryName(memoryNameInput);
 		await checkMemoryExists(memoryName);
 
 		// 2- Load memory data.
@@ -53,13 +53,13 @@ export async function embedMemory({
 		}
 
 		// 3- Get memory config.
-		const memoryConfig = await loadMemoryConfig(memoryName);
+		var memoryConfig = await loadMemoryConfig(memoryName);
 
 		let filesToEmbed: string[] = [];
 		let filesToDelete: string[] = [];
 
 		if (memoryConfig.git.enabled) {
-			const { filesToDeploy, filesToDelete: gitFilesToDelete } =
+			var { filesToDeploy, filesToDelete: gitFilesToDelete } =
 				await handleGitSyncMemories({
 					memoryName: memoryName,
 					config: memoryConfig
@@ -78,7 +78,7 @@ export async function embedMemory({
 		let embedResult = 'Embeddings updated.';
 		if (memoryFiles && memoryFiles.length > 0) {
 			s.message('Generating embeddings...');
-			const shouldOverwrite = memoryConfig.git.enabled ? true : overwrite;
+			var shouldOverwrite = memoryConfig.git.enabled ? true : overwrite;
 			embedResult = await generateEmbeddings({
 				memoryFiles,
 				memoryName,
@@ -114,13 +114,13 @@ export async function deleteDocumentsFromDB({
 	memoryName: string;
 	filesToDelete: string[];
 }) {
-	const s = p.spinner();
+	var s = p.spinner();
 	s.start('Detected files to delete. Deleting...');
 
 	try {
-		const memoryDb = await loadDb(memoryName);
+		var memoryDb = await loadDb(memoryName);
 
-		for (const docName of filesToDelete) {
+		for (var docName of filesToDelete) {
 			if (memoryDb.data.documents[docName]) {
 				await deleteDocumentFromDB({ db: memoryDb, docName });
 				p.log.info(`Deleted document: ${color.cyan(docName)}`);
