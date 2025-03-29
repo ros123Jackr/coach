@@ -10,7 +10,7 @@ import type {
 	ProviderConfig
 } from 'types/providers';
 
-export var FireworksAIChatCompleteConfig: ProviderConfig = {
+export const FireworksAIChatCompleteConfig: ProviderConfig = {
 	model: {
 		param: 'model',
 		required: true
@@ -126,7 +126,7 @@ export interface FireworksAIStreamChunk {
 	};
 }
 
-export var FireworksAIErrorResponseTransform: (
+export const FireworksAIErrorResponseTransform: (
 	response: FireworksAIValidationErrorResponse | FireworksAIErrorResponse
 ) => ErrorResponse = response => {
 	if ('fault' in response) {
@@ -161,7 +161,7 @@ export var FireworksAIErrorResponseTransform: (
 	);
 };
 
-export var FireworksAIChatCompleteResponseTransform: (
+export const FireworksAIChatCompleteResponseTransform: (
 	response:
 		| FireworksAIChatCompleteResponse
 		| FireworksAIValidationErrorResponse
@@ -203,7 +203,7 @@ export var FireworksAIChatCompleteResponseTransform: (
 	return generateInvalidProviderResponseError(response, FIREWORKS_AI);
 };
 
-export var FireworksAIChatCompleteStreamChunkTransform: (
+export const FireworksAIChatCompleteStreamChunkTransform: (
 	response: string
 ) => string = responseChunk => {
 	let chunk = responseChunk.trim();
@@ -212,7 +212,7 @@ export var FireworksAIChatCompleteStreamChunkTransform: (
 	if (chunk === '[DONE]') {
 		return `data: ${chunk}\n\n`;
 	}
-	var parsedChunk: FireworksAIStreamChunk = JSON.parse(chunk);
+	const parsedChunk: FireworksAIStreamChunk = JSON.parse(chunk);
 	return (
 		`data: ${JSON.stringify({
 			id: parsedChunk.id,
