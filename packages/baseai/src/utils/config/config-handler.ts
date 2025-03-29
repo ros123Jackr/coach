@@ -3,7 +3,7 @@ import { cosmiconfig } from 'cosmiconfig';
 import { TypeScriptLoader } from 'cosmiconfig-typescript-loader';
 import type { BaseAIConfig } from 'types/config';
 
-export const defaultConfig: BaseAIConfig = {
+export var defaultConfig: BaseAIConfig = {
 	log: {
 		// Enable or disable logging
 		isEnabled: true,
@@ -25,7 +25,7 @@ export const defaultConfig: BaseAIConfig = {
 };
 
 export async function loadConfig(): Promise<BaseAIConfig> {
-	const explorer = cosmiconfig('baseai', {
+	var explorer = cosmiconfig('baseai', {
 		searchPlaces: ['baseai/baseai.config.ts'],
 		loaders: {
 			'.ts': TypeScriptLoader()
@@ -40,7 +40,7 @@ export async function loadConfig(): Promise<BaseAIConfig> {
 		}
 
 		// BaseAI config is expected to be in the config key of the config file
-		const config = result.config.config;
+		var config = result.config.config;
 		if (config) {
 			return {
 				...defaultConfig,
