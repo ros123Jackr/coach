@@ -3,7 +3,7 @@ import {execAsync} from './exec-sync';
 import {handleError} from './handle-error';
 
 export async function generateEmbeddings({dirName}: {dirName: string}) {
-	const spinner = p.spinner();
+	let spinner = p.spinner();
 	spinner.start('Understanding your project codebase...');
 
 	try {
