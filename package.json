@@ -33,7 +33,7 @@
 	},
 	"devDependencies": {
 		"@baseai/eslint-config": "workspace:*",
-		"@changesets/cli": "^2.27.8",
+		"@changesets/cli": "^2.29.1",
 		"@types/node": "^22.6.1",
 		"eslint": "^8.57.0",
 		"husky": "^9.1.6",
